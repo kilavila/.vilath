@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# 0: Success
+# 1: General error
+# 2: Misuse of shell builtins
+# 126: Command not found
+# 127: Command not found (or not executable)
+# 128+: Command terminated by signal
+
+action=$1
+param=$2
+flag=$3
+
+username=$(whoami)
+dir="/home/$username/.vilath"
+
+# edit.sh
+# view.sh
+
+# vilath
+# init.sh
+# generate.sh
+# list.sh
+
+vilath() {
+	if [[ "$action" == "--help" ]]; then
+		echo "Vilath - password manager"
+		echo "-------------------------"
+		echo "Usage:"
+		echo "  vilath init {{gpg-id}}"
+		echo "    - Initialize new password storage using GnuPG ID for encryption."
+		echo "      GnuPG ID should be the email you used to generate your keys."
+		echo "  vilath generate {{path/to/file}}"
+		echo "    - Generate new password file."
+		echo "      Prompt before overwriting existing password."
+	fi
+
+	if [[ -z "$action" || -z "$param" ]]; then
+		exec "$dir/.bin/list.sh" "$param" "$flag"
+		return 0
+	fi
+
+	if [[ "$action" == "init" ]]; then
+		exec "$dir/.bin/init.sh" "$param"
+		return 0
+	fi
+
+	if [[ "$action" == "generate" || "$action" == "gen" ]]; then
+		exec "$dir/.bin/generate.sh" "$param" "$flag"
+		return 0
+	fi
+
+	if [[ "$action" == "list" || "$action" == "ls" ]]; then
+		exec "$dir/.bin/list.sh" "$param" "$flag"
+		return 0
+	fi
+
+	if [[ "$action" == "view" ]]; then
+		exec "$dir/.bin/view.sh" "$param" "$flag"
+		return 0
+	fi
+
+	if [[ "$action" == "edit" ]]; then
+		exec "$dir/.bin/edit.sh" "$param" "$flag"
+		return 0
+	fi
+
+	if [[ -n "$action" ]]; then
+		exec "$dir/.bin/view.sh" "$action" "$param"
+		return 0
+	fi
+}
+
+vilath
