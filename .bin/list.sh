@@ -8,7 +8,7 @@ flag=$2
 username=$(whoami)
 
 list() {
-	tree "/home/$username/.vilath" -C --noreport # | sed -E 's/\/home\/.*\/\.vilath.*/Password Store/' | sed -E 's/\.gpg$//'
+	tree "/home/$username/.vilath" -C --noreport | sed -E 's/\/home\/.*\/\.vilath.*/Password Store/' | sed -E 's/\.gpg$//'
 }
 
 list

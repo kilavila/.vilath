@@ -12,6 +12,8 @@ view() {
 		if [[ -n "$flag" && "$flag" == "-c" ]]; then
 			echo "$secret" | head -n 1 | xclip -selection clipboard
 			echo "Password has been copied to clipboard"
+		elif [[ -n "$flag" && "$flag" == "-a" ]]; then
+			echo "$secret"
 		else
 			echo "$secret" | tail +2
 		fi

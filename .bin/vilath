@@ -35,7 +35,7 @@ vilath() {
 		echo "      Prompt before overwriting existing password."
 	fi
 
-	if [[ -z "$action" || -z "$param" ]]; then
+	if [[ -z "$action" ]]; then
 		exec "$dir/.bin/list.sh" "$param" "$flag"
 		return 0
 	fi
@@ -55,17 +55,17 @@ vilath() {
 		return 0
 	fi
 
-	if [[ "$action" == "view" ]]; then
+	if [[ "$action" == "view" || "$action" == "v" ]]; then
 		exec "$dir/.bin/view.sh" "$param" "$flag"
 		return 0
 	fi
 
-	if [[ "$action" == "edit" ]]; then
+	if [[ "$action" == "edit" || "$action" == "e" ]]; then
 		exec "$dir/.bin/edit.sh" "$param" "$flag"
 		return 0
 	fi
 
-	if [[ -n "$action" ]]; then
+	if [[ -n "$action" && "$action" == \w+\/\w+ ]]; then
 		exec "$dir/.bin/view.sh" "$action" "$param"
 		return 0
 	fi
