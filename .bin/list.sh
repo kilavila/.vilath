@@ -7,7 +7,7 @@ param=$2
 flag=$3
 
 list() {
-	tree "$dir" -P *.gpg -C --noreport | sed -E 's/\/home\/.*\/\.vilath.*/Password Store/' | sed -E 's/\.gpg$//'
+	tree "$dir" -I 'LICENSE|README.md|.bin|.git' -C --noreport | sed -E 's/\/home\/.*\/\.vilath.*/Password Store/' | sed -E 's/\.gpg$//'
 }
 
 list

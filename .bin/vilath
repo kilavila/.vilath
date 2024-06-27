@@ -27,6 +27,8 @@ vilath() {
 		echo "  vilath edit (e) {{path/to/file}}"
 		echo "    - Edit details of a password file with default editor."
 		echo "      Save and quit to update password file."
+		echo "  vilath menu (m)"
+		echo "    - Copy password using dmenu."
 	fi
 
 	if [[ "$action" == "menu" || "$action" == "m" ]]; then
@@ -48,9 +50,9 @@ vilath() {
 	elif [[ "$action" == "view" || "$action" == "v" ]]; then
 		exec "$dir/.bin/view.sh" "$dir" "$param" "$flag"
 	elif [[ "$action" == "edit" || "$action" == "e" ]]; then
-		exec "$dir/.bin/edit.sh" "$param" "$flag"
+		exec "$dir/.bin/edit.sh" "$dir" "$param" "$flag"
 	else
-		exec "$dir/.bin/view.sh" "$action" "$param"
+		exec "$dir/.bin/view.sh" "$dir" "$action" "$param"
 	fi
 }
 

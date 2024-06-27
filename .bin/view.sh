@@ -14,6 +14,7 @@ view() {
 		elif [[ -n "$flag" && "$flag" == "-a" ]]; then
 			echo "$secret"
 		else
+			echo "********************************"
 			echo "$secret" | tail +2
 		fi
 	fi
