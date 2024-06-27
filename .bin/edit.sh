@@ -1,19 +1,19 @@
 #!/bin/bash
 
-param=$1
-flag=$2
+dir=$1
+param=$2
+flag=$3
 
-username=$(whoami)
-gpg_id=$(head -n 1 /home/$username/.vilath/.gpg_id)
+gpg_id=$(head -n 1 "$dir/.gpg_id")
 
 edit() {
-	if [[ -e "/home/$username/.vilath/$param.gpg" ]]; then
-		secret=$(gpg -d -q "/home/$username/.vilath/$param.gpg")
-		echo "$secret" > "/home/$username/.vilath/$param"
-		shred --remove "/home/$username/.vilath/$param.gpg"
-		$EDITOR "/home/$username/.vilath/$param"
-		gpg -e -r "$gpg_id" "/home/$username/.vilath/$param"
-		shred --remove "/home/$username/.vilath/$param"
+	if [[ -e "$dir/$param.gpg" ]]; then
+		secret=$(gpg -d -q "$dir/$param.gpg")
+		echo "$secret" > "$dir/$param"
+		shred --remove "$dir/$param.gpg"
+		$EDITOR "$dir/$param"
+		gpg -e -r "$gpg_id" "$dir/$param"
+		shred --remove "$dir/$param"
 		echo "Updated $param"
 	fi
 }

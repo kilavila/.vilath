@@ -2,13 +2,12 @@
 
 export CLICOLOR_FORCE=1
 
-param=$1
-flag=$2
-
-username=$(whoami)
+dir=$1
+param=$2
+flag=$3
 
 list() {
-	tree "/home/$username/.vilath" -C --noreport | sed -E 's/\/home\/.*\/\.vilath.*/Password Store/' | sed -E 's/\.gpg$//'
+	tree "$dir" -P *.gpg -C --noreport | sed -E 's/\/home\/.*\/\.vilath.*/Password Store/' | sed -E 's/\.gpg$//'
 }
 
 list

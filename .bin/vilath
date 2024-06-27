@@ -29,19 +29,24 @@ vilath() {
 		echo "      Save and quit to update password file."
 	fi
 
+	if [[ "$action" == "menu" || "$action" == "m" ]]; then
+		exec "$dir/.bin/menu.sh" "$dir"
+		return 0
+	fi
+
 	if [[ -z "$action" ]]; then
-		exec "$dir/.bin/list.sh" "$param" "$flag"
+		exec "$dir/.bin/list.sh" "$dir" "$param" "$flag"
 		return 0
 	fi
 
 	if [[ "$action" == "init" || "$action" == "i" ]]; then
-		exec "$dir/.bin/init.sh" "$param"
+		exec "$dir/.bin/init.sh" "$dir" "$param"
 	elif [[ "$action" == "generate" || "$action" == "gen" || "$action" == "g" ]]; then
-		exec "$dir/.bin/generate.sh" "$param" "$flag"
+		exec "$dir/.bin/generate.sh" "$dir" "$param" "$flag"
 	elif [[ "$action" == "list" || "$action" == "ls" || "$action" == "l" ]]; then
-		exec "$dir/.bin/list.sh" "$param" "$flag"
+		exec "$dir/.bin/list.sh" "$dir" "$param" "$flag"
 	elif [[ "$action" == "view" || "$action" == "v" ]]; then
-		exec "$dir/.bin/view.sh" "$param" "$flag"
+		exec "$dir/.bin/view.sh" "$dir" "$param" "$flag"
 	elif [[ "$action" == "edit" || "$action" == "e" ]]; then
 		exec "$dir/.bin/edit.sh" "$param" "$flag"
 	else

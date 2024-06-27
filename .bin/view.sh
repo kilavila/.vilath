@@ -1,13 +1,12 @@
 #!/bin/bash
 
-param=$1
-flag=$2
-
-username=$(whoami)
+dir=$1
+param=$2
+flag=$3
 
 view() {
-	if [[ -e "/home/$username/.vilath/$param.gpg" ]]; then
-		secret=$(gpg -d -q "/home/$username/.vilath/$param.gpg")
+	if [[ -e "$dir/$param.gpg" ]]; then
+		secret=$(gpg -d -q "$dir/$param.gpg")
 
 		if [[ -n "$flag" && "$flag" == "-c" ]]; then
 			echo "$secret" | head -n 1 | xclip -selection clipboard
