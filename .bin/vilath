@@ -1,5 +1,13 @@
 #!/bin/bash
 
+: '
+	╭────────────────────────────╮
+	│ ┏┓  .vilath   ┓  ┏┓        │
+	│ ┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ │
+	│ ┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  │
+	├────────────────────────────╯
+'
+
 USER=$(whoami)
 DIR="/home/$USER/.vilath"
 
@@ -17,49 +25,64 @@ if [[ "$#" > 0 ]]; then
 		elif [[ "$PARAM" == "generate" || "$PARAM" == "gen" ]];	 then GENERATE=true;
 		elif [[ "$PARAM" == "edit" ]];	 then EDIT=true;
 		elif [[ "$PARAM" == "view" || "$PARAM" == "cat" ]];	 then VIEW=true;
+		elif [[ "$PARAM" == "list" || "$PARAM" == "ls" ]];	 then LIST=true;
 		elif [[ "$PARAM" == "unlock" ]]; then UNLOCK=true;
 		fi
 	done
+else LIST=true;
 fi
+
+function vilath_locked_error {
+	echo "Locked!"
+}
 
 function vilath_cmd_handler {
 	PARAMS="$@"
 
-	: '
-		╭────────────────────────────╮
-		│ ┏┓  .vilath   ┓  ┏┓        │
-		│ ┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ │
-		│ ┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  │
-		├────────────────────────────╯
-	'
-
-	echo "${YELLOW}"
-	echo "params: $PARAMS"
-	echo "${GREEN}"
-
-	# -- TODO
-	# if [[ "$IS_LOCKED" ]] &&
-	# 	[[ "$INITIALIZE" ]] ||
-	# 	[[ "$GENERATE" ]]; then
-	# 	echo "LOCKED!";
-	# fi
-
 	if [[ "$UNLOCK" ]]; then
 		sudo chattr -i -R "$DIR"
+		return 0
 	fi
 
-	if [[ "$INITIALIZE" ]] && ! [[ "$IS_LOCKED" ]]; then
+	if [[ "$LOCK" ]]; then
+		sudo chattr +i -R "$DIR"
+		return 0
+	fi
+
+	if [[ "$IS_LOCKED" ]]; then
+		echo "${GREEN}╭────────────────────────────╮"
+		echo "│ ${GREY}┏┓  ${DARK_GREY}.vilath   ${GREY}┓  ┏┓        ${GREEN}│"
+		echo "│ ${GREY}┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ ${GREEN}│"
+		echo "│ ${GREY}┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  ${GREEN}│"
+		echo "├────────────────────────────╯"
+		echo "│${NC}"
+	else
+		echo "${RED}╭────────────────────────────╮"
+		echo "│ ${GREY}┏┓  ${DARK_GREY}.vilath   ${GREY}┓  ┏┓        ${RED}│"
+		echo "  ${GREY}┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ ${RED}│"
+		echo "  ${GREY}┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  ${RED}│"
+		echo "╭────────────────────────────╯"
+		echo "┴${NC}"
+	fi
+
+	if [[ "$INITIALIZE" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
+
 		echo "$PARAMS"
 		GPG_ID=$(echo "$PARAMS" | sed -E 's/^.*(initialize|init)\s+([a-zA-Z0-9\-\_\.\@]+).*$/\2/')
 		echo "init: $DIR/.vps_gpg_id $GPG_ID"
 	fi
 
-	if [[ "$GENERATE" ]] && ! [[ "$IS_LOCKED" ]]; then
+	if [[ "$GENERATE" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
+
 		FILE=$(echo "$PARAMS" | sed -E 's/^.*(generate|gen)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
 		echo "gen: $DIR/$FILE.gpg"
 	fi
 
 	if [[ "$EDIT" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
+
 		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
 		echo "edit: $DIR/$FILE.gpg"
 	fi
@@ -69,8 +92,23 @@ function vilath_cmd_handler {
 		echo "view: $DIR/$FILE.gpg"
 	fi
 
-	if [[ "$LOCK" ]]; then
-		sudo chattr +i -R "$DIR"
+	if [[ "$LIST" ]]; then
+		if ! [[ "$IS_LOCKED" ]]; then
+			echo "${RED}┬${NC}"
+		fi
+		tree "$DIR" -I 'LICENSE|README.md|.bin|.git*|.vps_*' -C --noreport | tail +2 | sed -E 's/\.gpg$//'
+	fi
+	
+	if [[ "$IS_LOCKED" ]]; then
+		echo "${GREEN}│"
+		echo "╰───────────────────┬────────╮"
+		echo "         ${DARK_GREY}VPS Status ${GREEN}│ ${GREY}Locked ${GREEN}│"
+		echo "                    ╰────────╯${NC}"
+	else
+		echo "${RED}┬"
+		echo "╰────────────────────────────╮"
+		echo "       ${DARK_GREY}VPS Status   ${GREY}Unlocked ${RED}│"
+		echo "                  ╰──────────╯${NC}"
 	fi
 }
 
