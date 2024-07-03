@@ -13,21 +13,36 @@ source "$DIR/.bin/colors"
 if [[ "$#" > 0 ]]; then
 	for PARAM in "$@"; do
 		if [[ "$PARAM" == "lock" ]]; then LOCK=true;
-		elif [[ "$PARAM" == "unlock" ]]; then UNLOCK=true;
 		elif [[ "$PARAM" == "initialize" || "$PARAM" == "init" ]]; then INITIALIZE=true;
 		elif [[ "$PARAM" == "generate" || "$PARAM" == "gen" ]];	 then GENERATE=true;
+		elif [[ "$PARAM" == "edit" ]];	 then EDIT=true;
+		elif [[ "$PARAM" == "view" || "$PARAM" == "cat" ]];	 then VIEW=true;
+		elif [[ "$PARAM" == "unlock" ]]; then UNLOCK=true;
 		fi
 	done
 fi
 
-function vilath {
+function vilath_cmd_handler {
 	PARAMS="$@"
+
+	: '
+		╭────────────────────────────╮
+		│ ┏┓  .vilath   ┓  ┏┓        │
+		│ ┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ │
+		│ ┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  │
+		├────────────────────────────╯
+	'
 
 	echo "${YELLOW}"
 	echo "params: $PARAMS"
-	echo "init: $INITIALIZE"
-	echo "gen: $GENERATE"
 	echo "${GREEN}"
+
+	# -- TODO
+	# if [[ "$IS_LOCKED" ]] &&
+	# 	[[ "$INITIALIZE" ]] ||
+	# 	[[ "$GENERATE" ]]; then
+	# 	echo "LOCKED!";
+	# fi
 
 	if [[ "$UNLOCK" ]]; then
 		sudo chattr -i -R "$DIR"
@@ -36,12 +51,22 @@ function vilath {
 	if [[ "$INITIALIZE" ]] && ! [[ "$IS_LOCKED" ]]; then
 		echo "$PARAMS"
 		GPG_ID=$(echo "$PARAMS" | sed -E 's/^.*(initialize|init)\s+([a-zA-Z0-9\-\_\.\@]+).*$/\2/')
-		echo "$DIR/.vps_gpg_id $GPG_ID"
+		echo "init: $DIR/.vps_gpg_id $GPG_ID"
 	fi
 
 	if [[ "$GENERATE" ]] && ! [[ "$IS_LOCKED" ]]; then
 		FILE=$(echo "$PARAMS" | sed -E 's/^.*(generate|gen)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
-		echo "$DIR/$FILE.gpg"
+		echo "gen: $DIR/$FILE.gpg"
+	fi
+
+	if [[ "$EDIT" ]]; then
+		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+		echo "edit: $DIR/$FILE.gpg"
+	fi
+
+	if [[ "$VIEW" ]]; then
+		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+		echo "view: $DIR/$FILE.gpg"
 	fi
 
 	if [[ "$LOCK" ]]; then
@@ -49,4 +74,4 @@ function vilath {
 	fi
 }
 
-vilath "$@"
+vilath_cmd_handler "$@"
