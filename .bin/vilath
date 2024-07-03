@@ -1,10 +1,52 @@
 #!/bin/bash
 
-PARAMS="$@"
-
 USER=$(whoami)
 DIR="/home/$USER/.vilath"
 
+CHATTR=$(lsattr -dR "$DIR" | awk '{print $1}')
+if [[ "$CHATTR" == *"i"* ]]; then
+	IS_LOCKED=true;
+fi
+
 source "$DIR/.bin/colors"
 
-echo "${GREEN}$PARAMS${NC}"
+if [[ "$#" > 0 ]]; then
+	for PARAM in "$@"; do
+		if [[ "$PARAM" == "lock" ]]; then LOCK=true;
+		elif [[ "$PARAM" == "unlock" ]]; then UNLOCK=true;
+		elif [[ "$PARAM" == "initialize" || "$PARAM" == "init" ]]; then INITIALIZE=true;
+		elif [[ "$PARAM" == "generate" || "$PARAM" == "gen" ]];	 then GENERATE=true;
+		fi
+	done
+fi
+
+function vilath {
+	PARAMS="$@"
+
+	echo "${YELLOW}"
+	echo "params: $PARAMS"
+	echo "init: $INITIALIZE"
+	echo "gen: $GENERATE"
+	echo "${GREEN}"
+
+	if [[ "$UNLOCK" ]]; then
+		sudo chattr -i -R "$DIR"
+	fi
+
+	if [[ "$INITIALIZE" ]] && ! [[ "$IS_LOCKED" ]]; then
+		echo "$PARAMS"
+		GPG_ID=$(echo "$PARAMS" | sed -E 's/^.*(initialize|init)\s+([a-zA-Z0-9\-\_\.\@]+).*$/\2/')
+		echo "$DIR/.vps_gpg_id $GPG_ID"
+	fi
+
+	if [[ "$GENERATE" ]] && ! [[ "$IS_LOCKED" ]]; then
+		FILE=$(echo "$PARAMS" | sed -E 's/^.*(generate|gen)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+		echo "$DIR/$FILE.gpg"
+	fi
+
+	if [[ "$LOCK" ]]; then
+		sudo chattr +i -R "$DIR"
+	fi
+}
+
+vilath "$@"
