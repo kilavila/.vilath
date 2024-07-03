@@ -1,59 +1,10 @@
 #!/bin/bash
 
-action=$1
-param=$2
-flag=$3
+PARAMS="$@"
 
-username=$(whoami)
-dir="/home/$username/.vilath"
+USER=$(whoami)
+DIR="/home/$USER/.vilath"
 
-vilath() {
-	if [[ "$action" == "--help" || "$action" == "-h" ]]; then
-		echo "Vilath - password manager"
-		echo "-------------------------"
-		echo "Usage:"
-		echo "  vilath init {{gpg-id}}"
-		echo "    - Initialize new password storage using GnuPG ID for encryption."
-		echo "      GnuPG ID should be the email you used to generate your keys."
-		echo "  vilath generate (gen || g) {{path/to/file}}"
-		echo "    - Generate new password file."
-		echo "      Prompt before overwriting existing password."
-		echo "  vilath (list || ls || l)"
-		echo "    - View password store."
-		echo "      Overview of password files without displaying sensitive information."
-		echo "  vilath (view || v) {{path/to/file}}"
-		echo "    - View details of a password file."
-		echo "      Hides password by default, use -a to view all or -c to copy password."
-		echo "  vilath edit (e) {{path/to/file}}"
-		echo "    - Edit details of a password file with default editor."
-		echo "      Save and quit to update password file."
-		echo "  vilath menu (m)"
-		echo "    - Copy password using dmenu."
-	fi
+source "$DIR/.bin/colors"
 
-	if [[ "$action" == "menu" || "$action" == "m" ]]; then
-		exec "$dir/.bin/menu.sh" "$dir"
-		return 0
-	fi
-
-	if [[ -z "$action" ]]; then
-		exec "$dir/.bin/list.sh" "$dir" "$param" "$flag"
-		return 0
-	fi
-
-	if [[ "$action" == "init" || "$action" == "i" ]]; then
-		exec "$dir/.bin/init.sh" "$dir" "$param"
-	elif [[ "$action" == "generate" || "$action" == "gen" || "$action" == "g" ]]; then
-		exec "$dir/.bin/generate.sh" "$dir" "$param" "$flag"
-	elif [[ "$action" == "list" || "$action" == "ls" || "$action" == "l" ]]; then
-		exec "$dir/.bin/list.sh" "$dir" "$param" "$flag"
-	elif [[ "$action" == "view" || "$action" == "v" ]]; then
-		exec "$dir/.bin/view.sh" "$dir" "$param" "$flag"
-	elif [[ "$action" == "edit" || "$action" == "e" ]]; then
-		exec "$dir/.bin/edit.sh" "$dir" "$param" "$flag"
-	else
-		exec "$dir/.bin/view.sh" "$dir" "$action" "$param"
-	fi
-}
-
-vilath
+echo "${GREEN}$PARAMS${NC}"
