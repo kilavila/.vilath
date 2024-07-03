@@ -17,6 +17,7 @@ if [[ "$CHATTR" == *"i"* ]]; then
 fi
 
 source "$DIR/.bin/colors"
+source "$DIR/.bin/list"
 
 if [[ "$#" > 0 ]]; then
 	for PARAM in "$@"; do
@@ -54,14 +55,14 @@ function vilath_cmd_handler {
 		echo "│ ${GREY}┏┓  ${DARK_GREY}.vilath   ${GREY}┓  ┏┓        ${GREEN}│"
 		echo "│ ${GREY}┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ ${GREEN}│"
 		echo "│ ${GREY}┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  ${GREEN}│"
-		echo "├────────────────────────────╯"
+		echo "├────────────────────────────┘"
 		echo "│${NC}"
 	else
 		echo "${RED}╭────────────────────────────╮"
 		echo "│ ${GREY}┏┓  ${DARK_GREY}.vilath   ${GREY}┓  ┏┓        ${RED}│"
 		echo "  ${GREY}┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ ${RED}│"
 		echo "  ${GREY}┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  ${RED}│"
-		echo "╭────────────────────────────╯"
+		echo "┌────────────────────────────┘"
 		echo "┴${NC}"
 	fi
 
@@ -96,19 +97,22 @@ function vilath_cmd_handler {
 		if ! [[ "$IS_LOCKED" ]]; then
 			echo "${RED}┬${NC}"
 		fi
-		tree "$DIR" -I 'LICENSE|README.md|.bin|.git*|.vps_*' -C --noreport | tail +2 | sed -E 's/\.gpg$//'
+		vilath_list "$IS_LOCKED"
+		if ! [[ "$IS_LOCKED" ]]; then
+			echo "${RED}┴${NC}"
+		fi
 	fi
 	
 	if [[ "$IS_LOCKED" ]]; then
 		echo "${GREEN}│"
-		echo "╰───────────────────┬────────╮"
+		echo "└───────────────────┬────────┐"
 		echo "         ${DARK_GREY}VPS Status ${GREEN}│ ${GREY}Locked ${GREEN}│"
-		echo "                    ╰────────╯${NC}"
+		echo "                    └────────┘${NC}"
 	else
 		echo "${RED}┬"
-		echo "╰────────────────────────────╮"
+		echo "└────────────────────────────┐"
 		echo "       ${DARK_GREY}VPS Status   ${GREY}Unlocked ${RED}│"
-		echo "                  ╰──────────╯${NC}"
+		echo "                  └──────────┘${NC}"
 	fi
 }
 

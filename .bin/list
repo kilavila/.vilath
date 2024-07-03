@@ -1,0 +1,26 @@
+#!/bin/bash
+
+function vilath_list {
+	IS_LOCKED="$1"
+
+	if [[ "$IS_LOCKED" ]]; then
+		INDENT_COLOR=${GREEN}
+	else
+		INDENT_COLOR=${RED}
+	fi
+
+	CONTENT=$(tree "$DIR" -I 'LICENSE|README.md|.bin|.git*|.vps_*' --noreport | tail +2)
+	while IFS= read -r LINE; do
+		INDENT=$(echo "$LINE" | sed -E 's/^(.*)\s[a-zA-Z0-9\-\_\.].*$/\1/')
+		ITEM=$(echo "$LINE" | sed -E 's/^[^a-zA-Z0-9\-\_\.]*(.*)$/\1/')
+
+		if [[ "$ITEM" == *".gpg" ]]; then
+			FILE_INDENT=$(echo "$INDENT" | sed -E 's/^\s/│/')
+			FILE=$(echo "$ITEM" | sed -E 's/^(.*).gpg/\1/')
+			echo "${INDENT_COLOR}$FILE_INDENT ${YELLOW}$FILE"
+		else
+			DIR_INDENT=$(echo "$INDENT" | sed -E 's/^└/├/')
+			echo "${INDENT_COLOR}$DIR_INDENT ${BLUE}$ITEM"
+		fi
+	done <<< "$CONTENT"
+}
