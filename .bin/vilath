@@ -1,33 +1,52 @@
 #!/bin/bash
 
 : '
-	╭────────────────────────────╮
-	│ ┏┓  .vilath   ┓  ┏┓        │
-	│ ┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ │
-	│ ┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  │
-	├────────────────────────────╯
+╭────────────────────────────╮
+│ ┏┓  .vilath   ┓  ┏┓        │
+│ ┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ │
+│ ┣┛┗┻┛┛┗┻┛┗┛┛ ┗┻  ┗┛┗┗┛┛ ┗  │
+├────────────────────────────╯
+├── Open-Source Password Manager by kilavila
+├── https://github.com/kilavila/.vilath
+│
+└── GnuPG encrypted and locked with chattr, inspired by pass(passwordstore.org) but with improved functionality and UI.
+		Automatically push changes to git, store passwords in hidden files and folders, view and copy passwords without unlocking with chattr etc.
+		Generate strong passwords of any length, add additional information in password files and use commands you are familiar with!
+		Commands like; cat, ls, cp, mv, rm etc..
+		VPS also supports chaining commands, f.ex:
+		vps gen web/twitch.tv edit web/twitch.tv view web/twitch.tv
+		will generate a new password file, open it in the default editor and print it.
 '
 
 USER=$(whoami)
 DIR="/home/$USER/.vilath"
+
+source "$DIR/.bin/colors"
+source "$DIR/.bin/list"
 
 CHATTR=$(lsattr -dR "$DIR" | awk '{print $1}')
 if [[ "$CHATTR" == *"i"* ]]; then
 	IS_LOCKED=true;
 fi
 
-source "$DIR/.bin/colors"
-source "$DIR/.bin/list"
-
+: '
+╭─────────────────╮
+│ Actions handler │
+├─────────────────╯
+'
 if [[ "$#" > 0 ]]; then
 	for PARAM in "$@"; do
-		if [[ "$PARAM" == "lock" ]]; then LOCK=true;
+		if [[ "$PARAM" == "unlock" ]]; then UNLOCK=true;
+		elif [[ "$PARAM" == "lock" ]]; then LOCK=true;
 		elif [[ "$PARAM" == "initialize" || "$PARAM" == "init" ]]; then INITIALIZE=true;
-		elif [[ "$PARAM" == "generate" || "$PARAM" == "gen" ]];	 then GENERATE=true;
-		elif [[ "$PARAM" == "edit" ]];	 then EDIT=true;
-		elif [[ "$PARAM" == "view" || "$PARAM" == "cat" ]];	 then VIEW=true;
-		elif [[ "$PARAM" == "list" || "$PARAM" == "ls" ]];	 then LIST=true;
-		elif [[ "$PARAM" == "unlock" ]]; then UNLOCK=true;
+		elif [[ "$PARAM" == "generate" || "$PARAM" == "gen" ]]; then GENERATE=true;
+		elif [[ "$PARAM" == "edit" ]]; then EDIT=true;
+		elif [[ "$PARAM" == "view" || "$PARAM" == "cat" ]]; then VIEW=true;
+		elif [[ "$PARAM" == "list" || "$PARAM" == "ls" ]]; then LIST=true;
+		elif [[ "$PARAM" == "copy" || "$PARAM" == "cp" ]]; then COPY=true;
+		elif [[ "$PARAM" == "move" || "$PARAM" == "mv" ]]; then MOVE=true;
+		elif [[ "$PARAM" == "remove" || "$PARAM" == "rm" ]]; then REMOVE=true;
+		elif [[ "$PARAM" == "git" ]]; then GIT=true;
 		fi
 	done
 else LIST=true;
@@ -40,16 +59,27 @@ function vilath_locked_error {
 function vilath_cmd_handler {
 	PARAMS="$@"
 
+	: '
+	╭──────╮
+	│ Lock │
+	├──────╯
+	'
 	if [[ "$UNLOCK" ]]; then
 		sudo chattr -i -R "$DIR"
+		echo "${RED}VPS Unlocked${NC}"
 		return 0
 	fi
-
 	if [[ "$LOCK" ]]; then
 		sudo chattr +i -R "$DIR"
+		echo "${GREEN}VPS Locked${NC}"
 		return 0
 	fi
 
+	: '
+	╭────────╮
+	│ Header │
+	├────────╯
+	'
 	if [[ "$IS_LOCKED" ]]; then
 		echo "${GREEN}╭────────────────────────────╮"
 		echo "│ ${GREY}┏┓  ${DARK_GREY}.vilath   ${GREY}┓  ┏┓        ${GREEN}│"
@@ -66,6 +96,11 @@ function vilath_cmd_handler {
 		echo "┴${NC}"
 	fi
 
+	: '
+	╭────────────╮
+	│ Initialize │
+	├────────────╯
+	'
 	if [[ "$INITIALIZE" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
 
@@ -74,6 +109,11 @@ function vilath_cmd_handler {
 		echo "init: $DIR/.vps_gpg_id $GPG_ID"
 	fi
 
+	: '
+	╭──────────╮
+	│ Generate │
+	├──────────╯
+	'
 	if [[ "$GENERATE" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
 
@@ -81,6 +121,11 @@ function vilath_cmd_handler {
 		echo "gen: $DIR/$FILE.gpg"
 	fi
 
+	: '
+	╭──────╮
+	│ Edit │
+	├──────╯
+	'
 	if [[ "$EDIT" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
 
@@ -88,11 +133,21 @@ function vilath_cmd_handler {
 		echo "edit: $DIR/$FILE.gpg"
 	fi
 
+	: '
+	╭──────╮
+	│ View │
+	├──────╯
+	'
 	if [[ "$VIEW" ]]; then
 		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
 		echo "view: $DIR/$FILE.gpg"
 	fi
 
+	: '
+	╭──────╮
+	│ List │
+	├──────╯
+	'
 	if [[ "$LIST" ]]; then
 		if ! [[ "$IS_LOCKED" ]]; then
 			echo "${RED}┬${NC}"
@@ -103,17 +158,23 @@ function vilath_cmd_handler {
 		fi
 	fi
 	
+	: '
+	╭────────╮
+	│ Footer │
+	├────────╯
+	'
 	if [[ "$IS_LOCKED" ]]; then
 		echo "${GREEN}│"
 		echo "└───────────────────┬────────┐"
 		echo "         ${DARK_GREY}VPS Status ${GREEN}│ ${GREY}Locked ${GREEN}│"
-		echo "                    └────────┘${NC}"
+		echo "                    └────────┘"
 	else
 		echo "${RED}┬"
 		echo "└────────────────────────────┐"
 		echo "       ${DARK_GREY}VPS Status   ${GREY}Unlocked ${RED}│"
-		echo "                  └──────────┘${NC}"
+		echo "                  └──────────┘"
 	fi
+	echo "${NC}"
 }
 
 vilath_cmd_handler "$@"
