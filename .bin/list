@@ -1,6 +1,6 @@
 #!/bin/bash
 
-function vilath_list {
+function vps_list {
 	IS_LOCKED="$1"
 
 	if [[ "$IS_LOCKED" ]]; then

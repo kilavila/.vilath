@@ -22,6 +22,7 @@ USER=$(whoami)
 DIR="/home/$USER/.vilath"
 
 source "$DIR/.bin/colors"
+source "$DIR/.bin/initialize"
 source "$DIR/.bin/list"
 
 CHATTR=$(lsattr -dR "$DIR" | awk '{print $1}')
@@ -52,11 +53,17 @@ if [[ "$#" > 0 ]]; then
 else LIST=true;
 fi
 
-function vilath_locked_error {
-	echo "Locked!"
+function vps_locked_error {
+	echo "│ ${RED}Unauthorized!"
+	echo "${GREEN}│ ${GREY}This action is not allowed"
+	echo "${GREEN}│ ${GREY}while VPS is locked."
+	echo "${GREEN}│"
+	echo "└───────────────────┬────────┐"
+	echo "         ${DARK_GREY}VPS Status ${GREEN}│ ${GREY}Locked ${GREEN}│"
+	echo "                    └────────┘"
 }
 
-function vilath_cmd_handler {
+function vps_cmd_handler {
 	PARAMS="$@"
 
 	: '
@@ -102,11 +109,10 @@ function vilath_cmd_handler {
 	├────────────╯
 	'
 	if [[ "$INITIALIZE" ]]; then
-		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		echo "$PARAMS"
 		GPG_ID=$(echo "$PARAMS" | sed -E 's/^.*(initialize|init)\s+([a-zA-Z0-9\-\_\.\@]+).*$/\2/')
-		echo "init: $DIR/.vps_gpg_id $GPG_ID"
+		vps_initialize "$DIR" "$GPG_ID" "$IS_LOCKED"
 	fi
 
 	: '
@@ -115,7 +121,7 @@ function vilath_cmd_handler {
 	├──────────╯
 	'
 	if [[ "$GENERATE" ]]; then
-		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
 		FILE=$(echo "$PARAMS" | sed -E 's/^.*(generate|gen)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
 		echo "gen: $DIR/$FILE.gpg"
@@ -127,7 +133,7 @@ function vilath_cmd_handler {
 	├──────╯
 	'
 	if [[ "$EDIT" ]]; then
-		if [[ "$IS_LOCKED" ]]; then vilath_locked_error; return 0; fi
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
 		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
 		echo "edit: $DIR/$FILE.gpg"
@@ -152,12 +158,60 @@ function vilath_cmd_handler {
 		if ! [[ "$IS_LOCKED" ]]; then
 			echo "${RED}┬${NC}"
 		fi
-		vilath_list "$IS_LOCKED"
+		vps_list "$IS_LOCKED"
 		if ! [[ "$IS_LOCKED" ]]; then
 			echo "${RED}┴${NC}"
 		fi
 	fi
-	
+
+	: '
+	╭──────╮
+	│ Copy │
+	├──────╯
+	'
+	if [[ "$COPY" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
+
+		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+		echo "copy: $DIR/$FILE.gpg"
+	fi
+
+	: '
+	╭──────╮
+	│ Move │
+	├──────╯
+	'
+	if [[ "$MOVE" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
+
+		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+		echo "move: $DIR/$FILE.gpg"
+	fi
+
+	: '
+	╭────────╮
+	│ Remove │
+	├────────╯
+	'
+	if [[ "$REMOVE" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
+
+		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+		echo "remove: $DIR/$FILE.gpg"
+	fi
+
+	: '
+	╭─────╮
+	│ Git │
+	├─────╯
+	'
+	if [[ "$GIT" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
+
+		FILE=$(echo "$PARAMS" | sed -E 's/^.*(view|cat)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+		echo "git: $DIR/$FILE.gpg"
+	fi
+
 	: '
 	╭────────╮
 	│ Footer │
@@ -177,4 +231,4 @@ function vilath_cmd_handler {
 	echo "${NC}"
 }
 
-vilath_cmd_handler "$@"
+vps_cmd_handler "$@"
