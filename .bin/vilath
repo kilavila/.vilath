@@ -227,14 +227,14 @@ function vps_cmd_handler {
 	'
 	if [[ "$IS_LOCKED" ]]; then
 		echo "${GREEN}│"
-		echo "└─────────────────────┬────────┐"
-		echo "           ${DARK_GREY}VPS Status ${GREEN}│ ${GREY}Locked ${GREEN}│"
-		echo "                      └────────┘"
+		echo "├────────────────────┬────────┬┘"
+		echo "                     │ ${DARK_GREY}Locked ${GREEN}│"
+		echo "                     └────────┘"
 	else
 		echo "${RED}┬"
-		echo "└──────────────────────────────┐"
-		echo "         ${DARK_GREY}VPS Status   ${GREY}Unlocked ${RED}│"
-		echo "                    └──────────┘"
+		echo "└─────────────────────────────┬┘"
+		echo "                     ${DARK_GREY}Unlocked ${RED}│"
+		echo "                   └──────────┘"
 	fi
 	echo "${NC}"
 }
