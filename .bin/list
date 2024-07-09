@@ -15,12 +15,10 @@ function vps_list {
 		ITEM=$(echo "$LINE" | sed -E 's/^[^a-zA-Z0-9\-\_\.]*(.*)$/\1/')
 
 		if [[ "$ITEM" == *".gpg" ]]; then
-			FILE_INDENT=$(echo "$INDENT" | sed -E 's/^\s/│/')
 			FILE=$(echo "$ITEM" | sed -E 's/^(.*).gpg/\1/')
-			echo "${INDENT_COLOR}$FILE_INDENT ${YELLOW}$FILE"
+			echo "${INDENT_COLOR}$INDENT ${YELLOW}$FILE"
 		else
-			DIR_INDENT=$(echo "$INDENT" | sed -E 's/^└/├/')
-			echo "${INDENT_COLOR}$DIR_INDENT ${BLUE}$ITEM"
+			echo "${INDENT_COLOR}$INDENT ${BLUE}$ITEM"
 		fi
 	done <<< "$CONTENT"
 }

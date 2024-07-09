@@ -22,7 +22,7 @@ function vps_generate {
 
 		if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "y" ]]; then
 			vps_create_new_password "$DIR" "$FILE"
-			echo "${RED}│ ${GREY}Password file generated: ${GREEN}$FILE"
+			echo "${RED}└── ${GREY}Password file generated: ${GREEN}$FILE"
 		fi
 	else
 		if [[ "$FILE" =~ \/ ]]; then
@@ -33,9 +33,7 @@ function vps_generate {
 			fi
 
 			vps_create_new_password "$DIR" "$FILE"
-			echo "${RED}│ ${GREY}Password file generated: ${GREEN}$FILE"
+			echo "${RED}└── ${GREY}Password file generated: ${GREEN}$FILE"
 		fi
 	fi
-
-	echo "${RED}┴${NC}"
 }

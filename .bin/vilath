@@ -22,6 +22,8 @@ USER=$(whoami)
 DIR="/home/$USER/.vilath"
 
 source "$DIR/.bin/colors"
+source "$DIR/.bin/decrypt"
+source "$DIR/.bin/edit"
 source "$DIR/.bin/encrypt"
 source "$DIR/.bin/initialize"
 source "$DIR/.bin/generate"
@@ -145,7 +147,7 @@ function vps_cmd_handler {
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
 		FILE=$(vps_get_file "$PARAMS")
-		echo "edit: $DIR/$FILE.gpg"
+		vps_edit "$DIR" "$FILE"
 	fi
 
 	: '
@@ -168,9 +170,9 @@ function vps_cmd_handler {
 			echo "${RED}┬${NC}"
 		fi
 		vps_list "$IS_LOCKED"
-		if ! [[ "$IS_LOCKED" ]]; then
-			echo "${RED}┴${NC}"
-		fi
+		# if ! [[ "$IS_LOCKED" ]]; then
+		# 	echo "${RED}┴${NC}"
+		# fi
 	fi
 
 	: '
@@ -226,17 +228,17 @@ function vps_cmd_handler {
 	│ Footer │
 	├────────╯
 	'
-	if [[ "$IS_LOCKED" ]]; then
-		echo "${GREEN}│"
-		echo "├────────────────────┬────────┬┘"
-		echo "                     │ ${DARK_GREY}Locked ${GREEN}│"
-		echo "                     └────────┘"
-	else
-		echo "${RED}┬"
-		echo "└─────────────────────────────┬┘"
-		echo "                     ${DARK_GREY}Unlocked ${RED}│"
-		echo "                   └──────────┘"
-	fi
+	# if [[ "$IS_LOCKED" ]]; then
+	# 	echo "${GREEN}│"
+	# 	echo "├────────────────────┬────────┬┘"
+	# 	echo "                     │ ${DARK_GREY}Locked ${GREEN}│"
+	# 	echo "                     └────────┘"
+	# else
+	# 	echo "${RED}┬"
+	# 	echo "├─────────────────────────────┬┘"
+	# 	echo "                     ${DARK_GREY}Unlocked ${RED}│"
+	# 	echo "                   └──────────┘"
+	# fi
 	echo "${NC}"
 }
 
