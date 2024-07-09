@@ -26,7 +26,7 @@ function vps_generate {
 		fi
 	else
 		if [[ "$FILE" =~ \/ ]]; then
-			DIRECTORIES=$(echo "$FILE" | sed -E 's/^([a-zA-Z0-9\-\_\.\/]+\/)[a-zA-Z0-9\-\_\.]+$/\1/')
+			DIRECTORIES=$(echo "$FILE" | sed -E 's/^(.*)\/.*$/\1/')
 
 			if [[ -n "$DIRECTORIES" && ! -d "$DIR/$DIRECTORIES" ]]; then
 				mkdir -p "$DIR/$DIRECTORIES"

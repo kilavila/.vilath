@@ -67,7 +67,8 @@ function vps_locked_error {
 
 function vps_get_file {
 	PARAMS="$@"
-	FILE=$(echo "$PARAMS" | sed -E 's/^.*(generate|gen)\s+([a-zA-Z0-9\-\_\.\/]+).*$/\2/')
+	GEN_CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(generate|gen\s+.*)$/\2/')
+	FILE=$(echo "$GEN_CMD" | awk '{print $2}')
 	echo "$FILE"
 }
 
