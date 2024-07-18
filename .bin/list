@@ -22,3 +22,20 @@ function vps_list {
 		fi
 	done <<< "$CONTENT"
 }
+
+# README
+# ------------------------
+# This function returns a simplified list of password files
+# without directories and hidden files.
+# To extend the password store, run this function and pipe the result
+# into a different application like dmenu, rofi or fzf.
+function vps_list_simple {
+	FILES=$(tree -i -f -P '*.gpg' --prune | ack .gpg | sed -E 's/^\.\/(.*)\.gpg$/\1/')
+	echo "$FILES"
+}
+
+# Same as the function above, but this will include hidden files as well.
+function vps_list_all_simple {
+	ALL_FILES=$(tree -i -f -a -P '*.gpg' --prune | ack .gpg | sed -E 's/^\.\/(.*)\.gpg$/\1/')
+	echo "$ALL_FILES"
+}

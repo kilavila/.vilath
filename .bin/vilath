@@ -58,19 +58,29 @@ else LIST=true;
 fi
 
 function vps_locked_error {
-	echo "│ ${RED}Unauthorized!"
-	echo "${GREEN}│ ${GREY}This action is not allowed"
-	echo "${GREEN}│ ${GREY}while VPS is locked."
-	echo "${GREEN}│"
-	echo "└───────────────────┬────────┐"
-	echo "         ${DARK_GREY}VPS Status ${GREEN}│ ${GREY}Locked ${GREEN}│"
-	echo "                    └────────┘"
+	echo "└── ${RED}Unauthorized!"
+	echo "    ${GREY}This action is not allowed while VPS is locked.${NC}"
 }
 
 function vps_get_file {
 	PARAMS="$@"
-	GEN_CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(generate|gen\s+.*)$/\2/')
-	FILE=$(echo "$GEN_CMD" | awk '{print $2}')
+	VCMD="$1"
+
+	if [[ "$VCMD" == "vps_gen_cmd" ]]; then
+		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(generate|gen)\s+(.*)$/\3/')
+	elif [[ "$VCMD" == "vps_edit_cmd" ]]; then
+		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(edit)\s+(.*)$/\3/')
+	elif [[ "$VCMD" == "vps_view_cmd" ]]; then
+		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(view|cat)\s+(.*)$/\3/')
+	elif [[ "$VCMD" == "vps_copy_cmd" ]]; then
+		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(copy|cp)\s+).*)$/\3/')
+	elif [[ "$VCMD" == "vps_move_cmd" ]]; then
+		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(move|mv)\s+(.*)$/\3/')
+	elif [[ "$VCMD" == "vps_remove_cmd" ]]; then
+		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(remove|rm)\s+(.*)$/\3/')
+	fi
+
+	FILE=$(echo "$CMD" | awk '{print $1}')
 	echo "$FILE"
 }
 
@@ -134,7 +144,9 @@ function vps_cmd_handler {
 	if [[ "$GENERATE" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "$PARAMS")
+		echo "generate file"
+
+		FILE=$(vps_get_file "vps_gen_cmd" "$PARAMS")
 		vps_generate "$DIR" "$FILE"
 	fi
 
@@ -146,7 +158,7 @@ function vps_cmd_handler {
 	if [[ "$EDIT" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "$PARAMS")
+		FILE=$(vps_get_file "vps_edit_cmd" "$PARAMS")
 		vps_edit "$DIR" "$FILE"
 	fi
 
@@ -156,8 +168,48 @@ function vps_cmd_handler {
 	├──────╯
 	'
 	if [[ "$VIEW" ]]; then
-		FILE=$(vps_get_file "$PARAMS")
+		FILE=$(vps_get_file "vps_view_cmd" "$PARAMS")
+		# TODO
 		echo "view: $DIR/$FILE.gpg"
+	fi
+
+	: '
+	╭──────╮
+	│ Copy │
+	├──────╯
+	'
+	if [[ "$COPY" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
+
+		FILE=$(vps_get_file "vps_copy_cmd" "$PARAMS")
+		# TODO
+		echo "copy: $DIR/$FILE.gpg"
+	fi
+
+	: '
+	╭──────╮
+	│ Move │
+	├──────╯
+	'
+	if [[ "$MOVE" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
+
+		FILE=$(vps_get_file "vps_move_cmd" "$PARAMS")
+		# TODO
+		echo "move: $DIR/$FILE.gpg"
+	fi
+
+	: '
+	╭────────╮
+	│ Remove │
+	├────────╯
+	'
+	if [[ "$REMOVE" ]]; then
+		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
+
+		FILE=$(vps_get_file "vps_remove_cmd" "$PARAMS")
+		# TODO
+		echo "remove: $DIR/$FILE.gpg"
 	fi
 
 	: '
@@ -170,45 +222,6 @@ function vps_cmd_handler {
 			echo "${RED}┬${NC}"
 		fi
 		vps_list "$IS_LOCKED"
-		# if ! [[ "$IS_LOCKED" ]]; then
-		# 	echo "${RED}┴${NC}"
-		# fi
-	fi
-
-	: '
-	╭──────╮
-	│ Copy │
-	├──────╯
-	'
-	if [[ "$COPY" ]]; then
-		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
-
-		FILE=$(vps_get_file "$PARAMS")
-		echo "copy: $DIR/$FILE.gpg"
-	fi
-
-	: '
-	╭──────╮
-	│ Move │
-	├──────╯
-	'
-	if [[ "$MOVE" ]]; then
-		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
-
-		FILE=$(vps_get_file "$PARAMS")
-		echo "move: $DIR/$FILE.gpg"
-	fi
-
-	: '
-	╭────────╮
-	│ Remove │
-	├────────╯
-	'
-	if [[ "$REMOVE" ]]; then
-		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
-
-		FILE=$(vps_get_file "$PARAMS")
-		echo "remove: $DIR/$FILE.gpg"
 	fi
 
 	: '
@@ -220,25 +233,10 @@ function vps_cmd_handler {
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
 		FILE=$(vps_get_file "$PARAMS")
+		# TODO
 		echo "git: $DIR/$FILE.gpg"
 	fi
 
-	: '
-	╭────────╮
-	│ Footer │
-	├────────╯
-	'
-	# if [[ "$IS_LOCKED" ]]; then
-	# 	echo "${GREEN}│"
-	# 	echo "├────────────────────┬────────┬┘"
-	# 	echo "                     │ ${DARK_GREY}Locked ${GREEN}│"
-	# 	echo "                     └────────┘"
-	# else
-	# 	echo "${RED}┬"
-	# 	echo "├─────────────────────────────┬┘"
-	# 	echo "                     ${DARK_GREY}Unlocked ${RED}│"
-	# 	echo "                   └──────────┘"
-	# fi
 	echo "${NC}"
 }
 

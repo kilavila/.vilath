@@ -10,13 +10,11 @@ function vps_initialize {
 		echo "│ Password Store already initialized!"
 		read -p "${RED}│ ${GREY}Would you like to ${YELLOW}overwrite the GnuPG ID${GREY}? [y/N] " CONFIRM
 		if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "y" ]]; then
-			echo "${RED}│ ${GREY}GnuPG ID overwritten!"
+			echo "${RED}└── ${GREY}GnuPG ID overwritten!"
 			echo "$GPG_ID" > "$DIR/.vps_gpg_id"
 		fi
 	else
-		echo "│ ${NC}Password Store initialized!"
+		echo "└── ${NC}Password Store initialized!"
 		echo "$GPG_ID" > "$DIR/.vps_gpg_id"
 	fi
-
-	echo "${RED}┴${NC}"
 }

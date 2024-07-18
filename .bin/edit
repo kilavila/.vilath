@@ -13,6 +13,4 @@ function vps_edit {
 		vps_encrypt "$DIR" "$FILE"
 		echo "└── ${GREY}Password file ${GREEN}updated ${GREY}and ${GREEN}encrypted${GREY}!"
 	fi
-
-	# echo "${RED}┴${NC}"
 }
