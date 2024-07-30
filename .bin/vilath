@@ -22,6 +22,7 @@ USER=$(whoami)
 DIR="/home/$USER/.vilath"
 
 source "$DIR/.bin/colors"
+source "$DIR/.bin/copy"
 source "$DIR/.bin/decrypt"
 source "$DIR/.bin/edit"
 source "$DIR/.bin/encrypt"
@@ -59,7 +60,7 @@ else LIST=true;
 fi
 
 function vps_locked_error {
-	echo "└── ${RED}Unauthorized!"
+	echo "${GREEN}└── ${RED}Unauthorized!"
 	echo "    ${GREY}This action is not allowed while VPS is locked.${NC}"
 }
 
@@ -74,15 +75,23 @@ function vps_get_file {
 	elif [[ "$VCMD" == "vps_view_cmd" ]]; then
 		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(view|cat)\s+(.*)$/\3/')
 	elif [[ "$VCMD" == "vps_copy_cmd" ]]; then
-		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(copy|cp)\s+).*)$/\3/')
+		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(copy|cp)\s+(.*)$/\3/')
+		TARGET_FILE_REQUIRED=true
 	elif [[ "$VCMD" == "vps_move_cmd" ]]; then
 		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(move|mv)\s+(.*)$/\3/')
+		TARGET_FILE_REQUIRED=true
 	elif [[ "$VCMD" == "vps_remove_cmd" ]]; then
 		CMD=$(echo "$PARAMS" | sed -E 's/^(.*)?(remove|rm)\s+(.*)$/\3/')
 	fi
 
-	FILE=$(echo "$CMD" | awk '{print $1}')
-	echo "$FILE"
+	if [[ "$TARGET_FILE_REQUIRED" ]]; then
+		SOURCE=$(echo "$CMD" | awk '{print $1}')
+		TARGET=$(echo "$CMD" | awk '{print $2}')
+		echo "$SOURCE $TARGET"
+	else
+		SOURCE=$(echo "$CMD" | awk '{print $1}')
+		echo "$SOURCE"
+	fi
 }
 
 function vps_cmd_handler {
@@ -145,8 +154,8 @@ function vps_cmd_handler {
 	if [[ "$GENERATE" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "vps_gen_cmd" "$PARAMS")
-		vps_generate "$DIR" "$FILE"
+		SOURCE=$(vps_get_file "vps_gen_cmd" "$PARAMS")
+		vps_generate "$DIR" "$SOURCE"
 	fi
 
 	: '
@@ -157,8 +166,8 @@ function vps_cmd_handler {
 	if [[ "$EDIT" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "vps_edit_cmd" "$PARAMS")
-		vps_edit "$DIR" "$FILE"
+		SOURCE=$(vps_get_file "vps_edit_cmd" "$PARAMS")
+		vps_edit "$DIR" "$SOURCE"
 	fi
 
 	: '
@@ -167,8 +176,8 @@ function vps_cmd_handler {
 	├──────╯
 	'
 	if [[ "$VIEW" ]]; then
-		FILE=$(vps_get_file "vps_view_cmd" "$PARAMS")
-		vps_view "$IS_LOCKED" "$DIR" "$FILE"
+		SOURCE=$(vps_get_file "vps_view_cmd" "$PARAMS")
+		vps_view "$IS_LOCKED" "$DIR" "$SOURCE"
 	fi
 
 	: '
@@ -179,9 +188,10 @@ function vps_cmd_handler {
 	if [[ "$COPY" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "vps_copy_cmd" "$PARAMS")
-		# TODO
-		echo "copy: $DIR/$FILE.gpg"
+		FILE_DESTINATION=$(vps_get_file "vps_copy_cmd" "$PARAMS")
+		SOURCE_FILE=$(echo "$FILE_DESTINATION" | awk '{print $1}')
+		TARGET_FILE=$(echo "$FILE_DESTINATION" | awk '{print $2}')
+		vps_copy "$DIR" "$SOURCE_FILE" "$TARGET_FILE"
 	fi
 
 	: '
@@ -192,9 +202,11 @@ function vps_cmd_handler {
 	if [[ "$MOVE" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "vps_move_cmd" "$PARAMS")
-		# TODO
-		echo "move: $DIR/$FILE.gpg"
+		FILE_DESTINATION=$(vps_get_file "vps_move_cmd" "$PARAMS")
+		SOURCE=$(echo "$FILE_DESTINATION" | awk '{print $1}')
+		DEST=$(echo "$FILE_DESTINATION" | awk '{print $2}')
+		echo "${BLUE}Work in progress..."
+		echo "${GREY}moving $DIR/$SOURCE.gpg to $DIR/$DEST.gpg"
 	fi
 
 	: '
@@ -205,9 +217,9 @@ function vps_cmd_handler {
 	if [[ "$REMOVE" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "vps_remove_cmd" "$PARAMS")
-		# TODO
-		echo "remove: $DIR/$FILE.gpg"
+		SOURCE=$(vps_get_file "vps_remove_cmd" "$PARAMS")
+		echo "${BLUE}Work in progress..."
+		echo "removing $DIR/$SOURCE.gpg"
 	fi
 
 	: '
@@ -230,9 +242,8 @@ function vps_cmd_handler {
 	if [[ "$GIT" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE=$(vps_get_file "$PARAMS")
-		# TODO
-		echo "git: $DIR/$FILE.gpg"
+		echo "${BLUE}Work in progress..."
+		echo "Git options"
 	fi
 
 	echo "${NC}"
