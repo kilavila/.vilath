@@ -29,6 +29,7 @@ source "$DIR/.bin/encrypt"
 source "$DIR/.bin/initialize"
 source "$DIR/.bin/generate"
 source "$DIR/.bin/list"
+source "$DIR/.bin/move"
 source "$DIR/.bin/view"
 
 CHATTR=$(lsattr -dR "$DIR" | awk '{print $1}')
@@ -188,9 +189,9 @@ function vps_cmd_handler {
 	if [[ "$COPY" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE_DESTINATION=$(vps_get_file "vps_copy_cmd" "$PARAMS")
-		SOURCE_FILE=$(echo "$FILE_DESTINATION" | awk '{print $1}')
-		TARGET_FILE=$(echo "$FILE_DESTINATION" | awk '{print $2}')
+		SOURCE_TARGET=$(vps_get_file "vps_copy_cmd" "$PARAMS")
+		SOURCE_FILE=$(echo "$SOURCE_TARGET" | awk '{print $1}')
+		TARGET_FILE=$(echo "$SOURCE_TARGET" | awk '{print $2}')
 		vps_copy "$DIR" "$SOURCE_FILE" "$TARGET_FILE"
 	fi
 
@@ -202,11 +203,10 @@ function vps_cmd_handler {
 	if [[ "$MOVE" ]]; then
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
-		FILE_DESTINATION=$(vps_get_file "vps_move_cmd" "$PARAMS")
-		SOURCE=$(echo "$FILE_DESTINATION" | awk '{print $1}')
-		DEST=$(echo "$FILE_DESTINATION" | awk '{print $2}')
-		echo "${BLUE}Work in progress..."
-		echo "${GREY}moving $DIR/$SOURCE.gpg to $DIR/$DEST.gpg"
+		SOURCE_TARGET=$(vps_get_file "vps_move_cmd" "$PARAMS")
+		SOURCE_FILE=$(echo "$SOURCE_TARGET" | awk '{print $1}')
+		TARGET_FILE=$(echo "$SOURCE_TARGET" | awk '{print $2}')
+		vps_move "$DIR" "$SOURCE_FILE" "$TARGET_FILE"
 	fi
 
 	: '
