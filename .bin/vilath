@@ -30,6 +30,7 @@ source "$DIR/.bin/initialize"
 source "$DIR/.bin/generate"
 source "$DIR/.bin/list"
 source "$DIR/.bin/move"
+source "$DIR/.bin/remove"
 source "$DIR/.bin/view"
 
 CHATTR=$(lsattr -dR "$DIR" | awk '{print $1}')
@@ -218,8 +219,7 @@ function vps_cmd_handler {
 		if [[ "$IS_LOCKED" ]]; then vps_locked_error; return 0; fi
 
 		SOURCE=$(vps_get_file "vps_remove_cmd" "$PARAMS")
-		echo "${BLUE}Work in progress..."
-		echo "removing $DIR/$SOURCE.gpg"
+		vps_remove "$DIR" "$SOURCE"
 	fi
 
 	: '
