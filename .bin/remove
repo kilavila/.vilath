@@ -10,29 +10,32 @@ function vps_remove {
 
 		echo "│   Deleting password file, this action is NOT reversible!"
 		read -p "${RED}│   ${GREY}Would you like to ${YELLOW}remove the password file${GREY}? [y/N] " CONFIRM
+		echo "${RED}│"
 
 		if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "y" ]]; then
-			echo "removing $DIR/$SOURCE.gpg"
-			echo "│"
-			echo "${RED}└── ${GREY}Password file deleted: ${GREEN}$SOURCE"
+			rm -f "$DIR/$SOURCE.gpg"
+			echo "└── ${GREY}Password file deleted: ${GREEN}$SOURCE"
+		else
+			echo "└── ${GREY}Aborted"
 		fi
 
 	elif [[ -d "$DIR/$SOURCE" ]]; then
 
-		echo "│   WARNING!"
-		echo "│   Deleting directory, this action is NOT reversible!"
+		echo "│   WARNING! Deleting directory, this action is NOT reversible!"
 		read -p "${RED}│   ${GREY}Would you like to ${YELLOW}remove the directory and all the password files within it${GREY}? [y/N] " CONFIRM
+		echo "${RED}│"
 
 		if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "y" ]]; then
-			echo "removing $DIR/$SOURCE"
-			echo "│"
-			echo "${RED}└── ${GREY}Password directory deleted: ${GREEN}$SOURCE"
+			rm -rf "$DIR/$SOURCE"
+			echo "└── ${GREY}Password directory deleted: ${GREEN}$SOURCE"
+		else
+			echo "└── ${GREY}Aborted"
 		fi
 
 	else
 
-		echo "│"
-		echo "${RED}└── ${GREY}File or directory not found: ${GREEN}$SOURCE"
+		echo "${RED}│"
+		echo "└── ${GREY}File or directory not found: ${GREEN}$SOURCE"
 
 	fi
 }
