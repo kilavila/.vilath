@@ -34,8 +34,8 @@ function vps_remove {
 
 	else
 
-		echo "${RED}│"
-		echo "└── ${GREY}File or directory not found: ${GREEN}$SOURCE"
+		echo "│   Error!"
+		echo "└── ${GREY}File or directory not found: ${YELLOW}$SOURCE"
 
 	fi
 }

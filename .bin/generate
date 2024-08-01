@@ -7,7 +7,6 @@ function vps_create_new_password {
 
 	echo "$PASSWORD" > "$DIR/$FILE"
 	vps_encrypt "$DIR" "$FILE"
-	echo "│"
 	echo "${RED}└── ${GREY}Password file generated: ${GREEN}$FILE"
 }
 
@@ -21,9 +20,12 @@ function vps_generate {
 
 		echo "│   Password file already exist!"
 		read -p "${RED}│   ${GREY}Would you like to ${YELLOW}overwrite the existing file${GREY}? [y/N] " CONFIRM
+		echo "│"
 
 		if [[ "$CONFIRM" == "Y" || "$CONFIRM" == "y" ]]; then
 			vps_create_new_password "$DIR" "$FILE"
+		else
+			echo "${RED}└── ${GREY}Aborted"
 		fi
 
 	else

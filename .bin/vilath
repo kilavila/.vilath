@@ -62,8 +62,8 @@ else LIST=true;
 fi
 
 function vps_locked_error {
-	echo "${GREEN}└── ${RED}Unauthorized!"
-	echo "    ${GREY}This action is not allowed while VPS is locked.${NC}"
+	echo "${GREEN}│   ${RED}Unauthorized!"
+	echo "${GREEN}└── ${GREY}This action is not allowed while VPS is locked.${NC}"
 }
 
 function vps_get_file {
