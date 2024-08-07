@@ -1,6 +1,22 @@
 #!/bin/bash
 
 : '
+TODO:
+	- Implement search/find function
+	- Implement flags handler
+	- Fix empty state UI
+	- Implement GnuPG ID check, unencrypted files check and throw warnings
+	- Implement config file for UI, functionality and git
+	- Implement config function
+	- Add file/dir not found function
+	- Implement autocomplete on TAB
+	- Implement help function
+	- Refactoring:
+		- Add vps_print function
+		- Code splitting; command handler, flags handler, error/warning
+'
+
+: '
 ╭────────────────────────────╮
 │ ┏┓  .vilath   ┓  ┏┓        │
 │ ┃┃┏┓┏┏┓┏┏┏┓┏┓┏┫  ┗┓╋┏┓┏┓┏┓ │
@@ -26,6 +42,7 @@ source "$DIR/.bin/copy"
 source "$DIR/.bin/decrypt"
 source "$DIR/.bin/edit"
 source "$DIR/.bin/encrypt"
+source "$DIR/.bin/find"
 source "$DIR/.bin/initialize"
 source "$DIR/.bin/generate"
 source "$DIR/.bin/list"
@@ -52,6 +69,7 @@ if [[ "$#" > 0 ]]; then
 		elif [[ "$PARAM" == "edit" ]]; then EDIT=true;
 		elif [[ "$PARAM" == "view" || "$PARAM" == "cat" ]]; then VIEW=true;
 		elif [[ "$PARAM" == "list" || "$PARAM" == "ls" ]]; then LIST=true;
+		elif [[ "$PARAM" == "search" || "$PARAM" == "find" || "$PARAM" == "fd" ]]; then FIND=true;
 		elif [[ "$PARAM" == "copy" || "$PARAM" == "cp" ]]; then COPY=true;
 		elif [[ "$PARAM" == "move" || "$PARAM" == "mv" ]]; then MOVE=true;
 		elif [[ "$PARAM" == "remove" || "$PARAM" == "rm" ]]; then REMOVE=true;
@@ -232,6 +250,20 @@ function vps_cmd_handler {
 			echo "${RED}┬${NC}"
 		fi
 		vps_list "$IS_LOCKED"
+	fi
+
+	: '
+	╭──────╮
+	│ Find │
+	├──────╯
+	'
+	if [[ "$FIND" ]]; then
+		if ! [[ "$IS_LOCKED" ]]; then
+			echo "${RED}┬${NC}"
+		fi
+
+		QUERY=$(echo "$PARAMS" | awk '{print $2}')
+		vps_find "$IS_LOCKED" "$QUERY"
 	fi
 
 	: '

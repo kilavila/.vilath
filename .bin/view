@@ -18,7 +18,7 @@ function vps_view {
 
 	# TODO Mask password, add -a and -c flag
 	echo "${INDENT_COLOR}└── ${DARK_GREY}$PASSWORD"
-	
+
 	if [[ -n "$PARSED_CONTENT" ]]; then
 		echo ""
 
