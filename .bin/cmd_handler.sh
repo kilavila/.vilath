@@ -193,14 +193,15 @@ function vps_cmd_handler {
 			INDENT_COLOR=${GREEN}
 		fi
 
-
 		SOURCE=$(vps_get_file "vps_qr_cmd" "$PARAMS")
 		echo "${INDENT_COLOR}└── ${GREY}Generating QR-Code: ${YELLOW}$SOURCE"
+
 		CONTENT=$(vps_decrypt "$DIR" "$SOURCE")
 		PASSWORD=$(echo "$CONTENT" | head -n 1)
 
 		echo "${BLUE}"
 		echo "$PASSWORD" | qrencode -t utf8i -s 1 -m 2
+		echo "${NC}"
 	fi
 
 	: '
