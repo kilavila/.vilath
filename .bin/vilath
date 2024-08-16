@@ -2,7 +2,7 @@
 
 : '
 TODO:
-	- Implement QR code function
+	- Set up install script for easy "get started"
 	- Implement flags handler
 	- Implement GnuPG ID check, unencrypted files check and throw warnings
 	- Add file/dir not found function
@@ -47,7 +47,7 @@ TODO:
 # 		[[ ${prev} == "move" ]] || [[ ${prev} == "mv" ]] ||
 # 		[[ ${prev} == "remove" ]] || [[ ${prev} == "rm" ]];
 # 	then
-# 		local args=( $(find ~/.vilath -name '*.gpg' | sed -E "s/^.*\.vilath\/(.*)\.gpg$/\1/g") )
+# 		local args=( $(find ~/.vilath -name '*.gpg' | sed -E 's/^.*\.vilath\/(.*)\.gpg$/\1/g') )
 # 	else
 # 		local args=( --help copy edit generate git initialize list lock move qr remove search unlock view )
 # 	fi
